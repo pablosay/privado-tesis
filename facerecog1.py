@@ -17,16 +17,11 @@ facetracker = load_model('facetracker2.h5')
 
 cv2.startWindowThread()
 picam2 = Picamera2()
-confg = picam2.create_video_configuration(main={"size": (540, 540)}, controls={"FrameDurationLimits": (33333, 33333)})
+confg = picam2.create_preview_configuration(main={"size": (540, 540), "format": "XRGB8888"})
 picam2.configure(confg)
 picam2.start()
 
 while True:
-
-	x = 100
-	y = 100
-	w = 200
-	h = 150
 	
 	im = picam2.capture_array();
 	
@@ -38,12 +33,14 @@ while True:
 	
 	sample_coords = yhat[1][0]
 	
-	if yhat[0] > 0.9:
+	
+	if yhat[0] > 0.8:
 		
-		cv2.rectangle(im, tuple(mp.multiply(simple_coords[:2], [540, 540]).astype(int)), 
-						  tuple(mp.multiply(simple_coords[:2], [540, 540]).astype(int)),
+		cv2.rectangle(im, tuple(np.multiply(sample_coords[:2], [540, 540]).astype(int)), 
+						  tuple(np.multiply(sample_coords[2:], [540, 540]).astype(int)),
 						  (255,0,0), 2)
 		
+	cv2.imshow('Prueba', im)
 	key = cv2.waitKey(1) & 0xFF
 		
 	if key == ord('q'):
