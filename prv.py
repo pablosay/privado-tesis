@@ -3,15 +3,15 @@ import time
 import uuid
 
 picam2 = Picamera2()
-config = picam2.create_preview_configuration()
+config = picam2.create_preview_configuration(main = {"size": (2000,2000)}, controls={"FrameDurationLimits": (16666, 16666)})
 picam2.configure(config)
 picam2.start_preview(True)
 picam2.start()
 
-for i in range(30):
+for i in range(1):
 		
-	file_name = f'/home/pablosay21/Documentos/lofi/{str(uuid.uuid1())}.jpg'
+	file_name = f'/home/pablosay21/Documentos/{str(uuid.uuid1())}.jpg'
 
-	#picam2.capture_file(file_name)
+	picam2.capture_file(file_name)
 		
 	time.sleep(0.5)

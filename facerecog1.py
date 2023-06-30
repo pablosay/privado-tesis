@@ -13,17 +13,19 @@ gpus = tf.config.experimental.list_physical_devices('GPU')
 for gpu in gpus:
 	tf.config.experimental.set_memory_growth(gpu, True)	
 	
-facetracker = load_model('facetracker2.h5')
+facetracker = load_model('facetracker3.h5')
 
 cv2.startWindowThread()
 picam2 = Picamera2()
-confg = picam2.create_preview_configuration(main={"size": (540, 540), "format": "XRGB8888"})
+confg = picam2.create_preview_configuration(main={"size": (2000, 2000), "format": "XRGB8888"})
 picam2.configure(confg)
 picam2.start()
 
 while True:
 	
 	im = picam2.capture_array();
+	
+	im = cv2.resize(im, (600,600))
 	
 	rgb = cv2.cvtColor(im, cv2.COLOR_BGR2RGB)
 	
@@ -34,10 +36,12 @@ while True:
 	sample_coords = yhat[1][0]
 	
 	
-	if yhat[0] > 0.8:
+	if yhat[0] > 0.9:
 		
-		cv2.rectangle(im, tuple(np.multiply(sample_coords[:2], [540, 540]).astype(int)), 
-						  tuple(np.multiply(sample_coords[2:], [540, 540]).astype(int)),
+		print("PAblo")
+		
+		cv2.rectangle(im, tuple(np.multiply(sample_coords[:2], [600, 600]).astype(int)), 
+						  tuple(np.multiply(sample_coords[2:], [600, 600]).astype(int)),
 						  (255,0,0), 2)
 		
 	cv2.imshow('Prueba', im)
