@@ -3,11 +3,12 @@ import cv2
 from picamera2 import Picamera2
 import numpy as np
 from ultralytics import YOLO 
+from deepface import DeepFace
 
 facerecognitionmodel = YOLO('best.pt')
 
 picam2 = Picamera2()
-confg = picam2.create_preview_configuration(main={"size": (640, 640)})
+confg = picam2.create_preview_configuration(main={"size": (640, 640)}, controls={"FrameDurationLimits": (3333, 3333)})
 picam2.configure(confg)
 picam2.start()
 
@@ -19,17 +20,19 @@ while True:
 	
 	rgb = cv2.resize(rgb, (640,640))
 	
-	facepredictions = facerecognitionmodel(rgb)
+	facepredictions = facerecognitionmodel(rgb, conf = 0.6,imgsz = 640, device = 'cpu')
 	
 	for result in facepredictions[0].boxes.data.numpy():
 		
-		if(result[4] > 0.6): 
+		bbox = result[:4]
+			
+		x_min, y_min, x_max, y_max = map(int, bbox)
 		
-			bbox = result[:4]
+		face = rgb[y_min:y_max, x_min:x_max]
+		
+		embedding = DeepFace.represent(img_path = face, model_name = 'Facenet', enforce_detection = False)
 			
-			x_min, y_min, x_max, y_max = map(int, bbox)
-			
-			cv2.rectangle(rgb, (x_min, y_min), (x_max, y_max), (0,255,0), 2)
+		cv2.rectangle(rgb, (x_min, y_min), (x_max, y_max), (0,255,0), 2)
 	
 	shape = str(rgb.shape)
 		
