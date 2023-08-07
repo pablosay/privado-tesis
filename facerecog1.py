@@ -4,7 +4,7 @@ from picamera2 import Picamera2
 import numpy as np
 from ultralytics import YOLO 
 
-facerecognitionmodel = YOLO('frv8s.pt')
+facerecognitionmodel = YOLO('best.pt')
 
 picam2 = Picamera2()
 confg = picam2.create_preview_configuration(main={"size": (640, 640)})
