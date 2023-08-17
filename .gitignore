@@ -1,3 +1,8 @@
 facetracker2.h5
 facetracker3.h5
 best.pt
+model.h5
+model2.h5
+model_1.h5
+svm_model_facenet.joblib
+svm_model_vgg16.joblib
