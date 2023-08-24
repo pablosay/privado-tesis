@@ -10,12 +10,12 @@ def capture_photos(num_photos):
 	
 	for i in range(num_photos):
 		
-		file_name = f'/home/pablosay21/Documentos/hd/{str(uuid.uuid1())}.jpg'
+		file_name = f'/home/pablosay21/Documentos/facenet/{str(uuid.uuid1())}.jpg'
 
 		picam2.capture_file(file_name)
 		
 		time.sleep(0.5)
 		
 
-capture_photos(30)
+capture_photos(2)
 

@@ -6,3 +6,5 @@ model2.h5
 model_1.h5
 svm_model_facenet.joblib
 svm_model_vgg16.joblib
+facenet
+data
