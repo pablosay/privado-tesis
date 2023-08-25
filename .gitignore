@@ -8,3 +8,4 @@ svm_model_facenet.joblib
 svm_model_vgg16.joblib
 facenet
 data
+__pycache__

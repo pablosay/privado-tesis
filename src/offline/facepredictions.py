@@ -1,7 +1,7 @@
 import cv2
 from ultralytics import YOLO
 
-facedetectionmodel = YOLO('../../data/models/best.pt')
+facedetectionmodel = YOLO('/home/pablosay21/Documentos/privado-tesis/data/models/best.pt')
 
 def faceprediction(image):
 	
