@@ -1,6 +1,7 @@
 from offline.embedding_processing import get_face_embedding, get_known_embeddings
 from offline.facepredictions import faceprediction
 from offline.faceclassification import recognize
+from offline.spoofdetection import spoofpredict
 from utils.utils import draw_bbox, draw_label, extract_image_from_camera, init_camera
 from picamera2 import Picamera2
 import cv2
@@ -23,6 +24,8 @@ while True:
 	
 	for result in prediction:
 		
+		spoofdetected = False
+		
 		bbox = result[:4]
 			
 		face_embedding = get_face_embedding(image, bbox, model = 'Facenet', spoof = False)
@@ -34,8 +37,28 @@ while True:
 			x_min = int(bbox[0])
 				
 			y_min = int(bbox[1])
-				
-			draw_label(predicted_name, image, x_min, y_min)
+			
+			spoof_prediction = spoofpredict(image)
+			
+			for i in spoof_prediction:
+							
+				if i[5] == 1 and i[4] > 0.8:
+								
+					draw_label(predicted_name, image, x_min, y_min)
+					
+				elif i[5] == 0 and i[4] > 0.8:
+					
+					spoofdetected = True
+					
+				else: 
+							
+					print("Acercate mas a la camara")
+							
+		if spoofdetected:
+							
+			print("SPOOF DETECTED")
+							
+			break
 			
 		draw_bbox(image, bbox)
 			
