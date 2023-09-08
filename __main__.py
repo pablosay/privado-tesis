@@ -1,6 +1,7 @@
 import time
 import subprocess
 import socket
+import argparse
 from art import *
 
 def check_internet_connection():
@@ -16,7 +17,7 @@ def check_internet_connection():
 		return False
 		
 		
-def main():
+def main(ip):
 	
 	while True:
 		
@@ -24,7 +25,7 @@ def main():
 			
 			print("Internet connection.")
 			
-			subprocess.run(['python', 'src/main_online.py'])
+			subprocess.run(['python', 'src/main_online.py', ip])
 			
 		else:
 			
@@ -36,10 +37,16 @@ def main():
 	
 if __name__ == '__main__':
 	
+	parser = argparse.ArgumentParser(description = 'Main file: Decides which script runs.')
+	
+	parser.add_argument('ip', type = str, help ='IP of the backend')
+	
+	args = parser.parse_args()
+	
 	texto = text2art("PRIVADO 23")
 	
 	print(texto)
 	
 	print("Pablo Alejandro Say Cutz, 19001434 \n")
 	
-	main()
+	main(args.ip)
