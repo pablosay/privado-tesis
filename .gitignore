@@ -9,3 +9,6 @@ svm_model_vgg16.joblib
 facenet
 data
 __pycache__
+spoofmodel.pt
+spoofmodel2.pt
+
