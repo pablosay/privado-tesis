@@ -2,6 +2,8 @@ import cv2
 import base64
 from picamera2 import Picamera2
 import numpy as np
+import RPi.GPIO as GPIO
+import time
 
 def draw_bbox(image, bbox):
 	
@@ -46,10 +48,40 @@ def extract_image_from_camera(cam, target_size):
 	
 	return rgb
 
-def init_camera(cam):
+def camera_config(cam):
 	
 	configuration = cam.create_preview_configuration(main={"size": (640, 640)}, controls={"FrameDurationLimits": (3333, 3333)})
 	
 	cam.configure(configuration)
 
 	cam.start()
+
+def init_distance_sensor(TRIG_PIN, ECHO_PIN):
+	
+	GPIO.setmode(GPIO.BCM)
+	GPIO.setup(TRIG_PIN, GPIO.OUT)
+	GPIO.setup(ECHO_PIN, GPIO.IN)
+	
+	
+def measure_distance(TRIG_PIN, ECHO_PIN):
+	
+    GPIO.output(TRIG_PIN, False)
+    time.sleep(0.2)  
+
+    GPIO.output(TRIG_PIN, True)
+    time.sleep(0.00001)
+    GPIO.output(TRIG_PIN, False)
+
+    while GPIO.input(ECHO_PIN) == 0:
+        pulse_start = time.time()
+
+    while GPIO.input(ECHO_PIN) == 1:
+        pulse_end = time.time()
+
+    pulse_duration = pulse_end - pulse_start
+
+    speed_of_sound = 343.0 
+
+    distance = (pulse_duration * speed_of_sound) / 2
+
+    return distance

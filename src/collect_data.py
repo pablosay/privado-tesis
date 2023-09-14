@@ -50,7 +50,7 @@ while True:
 				
 				output_filename = filename + '.jpg'
 				
-				cv2.imwrite('dataset/print/' + output_filename, copy)
+				cv2.imwrite('dataset/live/' + output_filename, copy)
 				
 				i = i + 1
 	

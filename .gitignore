@@ -11,4 +11,4 @@ data
 __pycache__
 spoofmodel.pt
 spoofmodel2.pt
-
+src/dataset
