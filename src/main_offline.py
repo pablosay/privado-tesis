@@ -25,95 +25,93 @@ print('Initializing distance sensor...')
 init_distance_sensor(TRIG_PIN, ECHO_PIN)
 print('Done')
 
+try:
 
-while True:
-	
-	print("Starting distance calculation")
-	
-	sensor_distance = measure_distance(TRIG_PIN,ECHO_PIN)
-	
-	if sensor_distance < 0.4:
+	while True:
 		
-		#Init camera
+		sensor_distance = measure_distance(TRIG_PIN,ECHO_PIN)
 		
-		camera.start()
-		
-		end = time.time() + wait_time
-		
-		while True:
+		if sensor_distance < 0.4:
 			
-			spoof_or_classification = False
+			#Init camera
 			
-			now = time.time()
-                
-			count = end - now
- 
-			if count > 0 and not spoof_or_classification:
-	
-				image = extract_image_from_camera(camera, (640,640))
+			camera.start()
+			
+			end = time.time() + wait_time
+			
+			while True:
 				
-				prediction = faceprediction(image)
+				spoof_or_classification = False
 				
-				for result in prediction:
+				now = time.time()
 					
-					bbox = result[:4]
+				count = end - now
+	 
+				if count > 0 and not spoof_or_classification:
+		
+					image = extract_image_from_camera(camera, (640,640))
+					
+					prediction = faceprediction(image)
+					
+					for result in prediction:
 						
-					face_embedding = get_face_embedding(image, bbox, model = 'Facenet', spoof = False)
-					
-					predicted_name = recognize(face_embedding, known_embeddings)
-					
-					if predicted_name != 'unknown':
+						bbox = result[:4]
 							
-						x_min = int(bbox[0])
+						face_embedding = get_face_embedding(image, bbox, model = 'Facenet', spoof = False)
+						
+						predicted_name = recognize(face_embedding, known_embeddings)
+						
+						if predicted_name != 'unknown':
+								
+							x_min = int(bbox[0])
+								
+							y_min = int(bbox[1])
 							
-						y_min = int(bbox[1])
-						
-						spoof_prediction = spoofpredict(image)
-						
-						for i in spoof_prediction:
-										
-							if i[5] == 1 and i[4] > 0.8:
+							spoof_prediction = spoofpredict(image)
+							
+							for i in spoof_prediction:
 											
-								draw_label(predicted_name, image, x_min, y_min)
-								
-								draw_bbox(image, bbox)
-								
-								spoof_or_classification = True
-								
-							elif i[5] == 0 and i[4] > 0.8:
-								
-								draw_label('Spoof', image, x_min, y_min)
-								
-								draw_bbox(image, bbox)
-								
-								spoof_or_classification = True
-								
-							else: 
-										
-								print("Acercate mas a la camara")
+								if i[5] == 1 and i[4] > 0.8:
+												
+									draw_label(predicted_name, image, x_min, y_min)
+									
+									draw_bbox(image, bbox)
+									
+									spoof_or_classification = True
+									
+								elif i[5] == 0 and i[4] > 0.8:
+									
+									draw_label('Spoof', image, x_min, y_min)
+									
+									draw_bbox(image, bbox)
+									
+									spoof_or_classification = True
+									
+								else: 
+											
+									print("Acercate mas a la camara")
+							
+					cv2.imshow('Facial recognition', image)
 						
-				cv2.imshow('Facial recognition', image)
+					key = cv2.waitKey(1) & 0xFF
+						
+					if key == ord('q'):
+						
+						break
+						
+					if spoof_or_classification:
+						
+						print("Waiting to leave")
+						time.sleep(5)
+		
+				else: 
 					
-				key = cv2.waitKey(1) & 0xFF
-					
-				if key == ord('q'):
+					cv2.destroyAllWindows()
 					
 					break
-					
-				if spoof_or_classification:
-					
-					print("Waiting to leave")
-					time.sleep(5)
-	
-			else: 
-				
-				cv2.destroyAllWindows()
-				
-				break
 
-		
-		
-
-
-
-
+			camera.stop()
+			
+			
+except KeyboardInterrupt:
+    GPIO.cleanup()

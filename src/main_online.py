@@ -4,6 +4,7 @@ from picamera2 import Picamera2
 import cv2
 import argparse
 import time
+import RPi.GPIO as GPIO
 
 ip = None
 
@@ -29,92 +30,104 @@ print('Initializing distance sensor...')
 init_distance_sensor(TRIG_PIN, ECHO_PIN)
 print('Done')
 
-while True:
-	
-	print("Starting distance calculation")
-	
-	sensor_distance = measure_distance(TRIG_PIN,ECHO_PIN)
-	
-	if sensor_distance > 0.4: 
+try:
+
+	while True:
 		
-		camera.start()
+		sensor_distance = measure_distance(TRIG_PIN,ECHO_PIN)
 		
-		end = time.time() + wait_time
-		
-		while True:
+		if sensor_distance < 0.4: 
+			
+			camera.start()
+			
+			end = time.time() + wait_time
 			
 			spoof_or_classification = False
 			
-			now = time.time()
-                
-			count = end - now
+			while True:
+				
+				now = time.time()
+					
+				count = end - now
+				
+				if count > 0 and not spoof_or_classification:
+				
+					image = extract_image_from_camera(camera, (640,640))
 			
-			if count > 0 and not spoof_or_classification:
+					encoded_image = encode_image(image)
 			
-				image = extract_image_from_camera(camera, (640,640))
-		
-				encoded_image = encode_image(image)
-		
-				facedetection_result = detect(encoded_image, ip)
-		
-				if facedetection_result['message'] == 'Successful':	
-		
-					for res in facedetection_result['result']:
-				
-						spoofdetected = False
-				
-						bbox = res[:4]
-				
-						classification = classify(encoded_image, bbox, 'Facenet', ip)
-				
-						if classification['message'] == 'Successful':
-				
-							if classification['result'] != 'unknown':
-						
-								print("Welcome")
-						
-								x_min = int(bbox[0])
+					facedetection_result = detect(encoded_image, ip)
+			
+					if facedetection_result['message'] == 'Successful':	
+			
+						for res in facedetection_result['result']:
 							
-								y_min = int(bbox[1])
-						
-								#Verifies only if there is a classify face
-						
-								spoofresult = spoofdetect(encoded_image, ip)
-						
-								if spoofresult['message'] == 'Successful':
+							bbox = res[:4]
+					
+							classification = classify(encoded_image, bbox, 'Facenet', ip)
+					
+							if classification['message'] == 'Successful':
+					
+								if classification['result'] != 'unknown':
 							
-									for i in spoofresult['result']:
+									x_min = int(bbox[0])
 								
-										if i[5] == 1 and i[4] > 0.7:
-									
-											draw_label(classification['result'], image, x_min, y_min)
-						
-										elif i[5] == 0 and i[4] > 0.7:
-						
-											spoofdetected = True
-						
-										else: 
-									
-											print("Acercate mas a la camara")
-									
-						if spoofdetected:
-								
-							print("SPOOF DETECTED")
-								
-							break
+									y_min = int(bbox[1])
 							
-						draw_bbox(image, bbox)
-		
-			shape = str(image.shape)
-			
-			cv2.imshow('Prueba ' + shape, image)
-		
-			key = cv2.waitKey(1) & 0xFF
+									spoofresult = spoofdetect(encoded_image, ip)
+							
+									if spoofresult['message'] == 'Successful':
+								
+										for i in spoofresult['result']:
+									
+											if i[5] == 1 and i[4] > 0.7:
+										
+												draw_label(classification['result'], image, x_min, y_min)
+												
+												draw_bbox(image, bbox)
+												
+												spoof_or_classification = True
+							
+											elif i[5] == 0 and i[4] > 0.7:
+							
+												draw_label(classification['result'], image, x_min, y_min)
+												
+												draw_bbox(image, bbox)
+												
+												spoof_or_classification = True
+							
+											else: 
+										
+												print("Acercate mas a la camara")
+								
+					
+					shape = str(image.shape)
 				
-			if key == ord('q'):
+					cv2.imshow('Prueba ' + shape, image)
 			
-				break
-		
-			time.sleep(0.2)
+					key = cv2.waitKey(1) & 0xFF
+					
+					if key == ord('q'):
+				
+						break
+						
+					if spoof_or_classification:
+						
+						print("Waiting to leave")
+						
+						time.sleep(2)
+					
+				else:
+					
+					cv2.destroyAllWindows()
+					
+					print("Deteccion o cumplido tiempo de espera")
+					
+					print(count)
+					
+					break
 	
-		camera.stop()
+			camera.stop()
+
+except KeyboardInterrupt:
+    GPIO.cleanup()
