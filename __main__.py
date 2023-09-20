@@ -24,6 +24,8 @@ def main(ip):
 		if check_internet_connection():
 			
 			print("Internet connection.")
+
+			
 			
 			subprocess.run(['python', 'src/main_online.py', ip])
 			

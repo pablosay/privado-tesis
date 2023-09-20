@@ -1,4 +1,8 @@
-from utils.utils import draw_bbox, draw_label, extract_image_from_camera, camera_config, encode_image, init_distance_sensor, measure_distance
+from utils.software import draw_bbox, draw_label, encode_image 
+from utils.hardware.camera import extract_image_from_camera, camera_config
+from utils.hardware.sensor import init_distance_sensor, measure_distance
+from utils.hardware.display import init_display, disp_show_image, display_clear, display_show_spoof
+
 from online.apirequests import classify, detect, spoofdetect
 from picamera2 import Picamera2
 import cv2
@@ -8,39 +12,42 @@ import RPi.GPIO as GPIO
 
 ip = None
 
-TRIG_PIN = 4  
-ECHO_PIN = 17
-wait_time = 10
-
-parser = argparse.ArgumentParser(description = 'Main online file: Makes api calls to the server.')
-	
-parser.add_argument('ip', type = str, help ='IP of the backend')
-	
-args = parser.parse_args()
-
-ip = args.ip
-
-camera = Picamera2()
-
-print('Initializing camera (Picamera2)...')
-camera_config(camera)
-print('Done.')
-
-print('Initializing distance sensor...')
-init_distance_sensor(TRIG_PIN, ECHO_PIN)
-print('Done')
 
 try:
 
+	parser = argparse.ArgumentParser(description = 'Main online file: Makes api calls to the server.')
+		
+	parser.add_argument('ip', type = str, help ='IP of the backend')
+		
+	args = parser.parse_args()
+
+	ip = args.ip
+
+	camera = Picamera2()
+
+	print('Initializing camera (Picamera2)...')
+	camera_config(camera)
+	print('Done.')
+
+	print('Initializing distance sensor...')
+	init_distance_sensor()
+	print('Done')
+	
+	print('Initializing display...')
+	disp = init_display()
+	print('Done')
+
 	while True:
 		
-		sensor_distance = measure_distance(TRIG_PIN,ECHO_PIN)
+		sensor_distance = measure_distance()
 		
-		if sensor_distance < 0.4: 
+		if sensor_distance < 0.4:
+			
+			print("Distancia detectada") 
 			
 			camera.start()
 			
-			end = time.time() + wait_time
+			end = time.time() + 10
 			
 			spoof_or_classification = False
 			
@@ -61,6 +68,8 @@ try:
 					if facedetection_result['message'] == 'Successful':	
 			
 						for res in facedetection_result['result']:
+							
+							print("Detecto cara")
 							
 							bbox = res[:4]
 					
@@ -86,40 +95,31 @@ try:
 												
 												draw_bbox(image, bbox)
 												
+												disp_show_image(disp, image)
+												
 												spoof_or_classification = True
 							
 											elif i[5] == 0 and i[4] > 0.7:
 							
-												draw_label(classification['result'], image, x_min, y_min)
-												
-												draw_bbox(image, bbox)
+												display_show_spoof(disp)
 												
 												spoof_or_classification = True
 							
 											else: 
 										
 												print("Acercate mas a la camara")
-								
-					
-					shape = str(image.shape)
-				
-					cv2.imshow('Prueba ' + shape, image)
-			
-					key = cv2.waitKey(1) & 0xFF
-					
-					if key == ord('q'):
-				
-						break
 						
+								else:
+									
+									print("Desconocido")
+								
 					if spoof_or_classification:
 						
 						print("Waiting to leave")
 						
-						time.sleep(2)
+						time.sleep(10)
 					
 				else:
-					
-					cv2.destroyAllWindows()
 					
 					print("Deteccion o cumplido tiempo de espera")
 					
@@ -128,6 +128,12 @@ try:
 					break
 	
 			camera.stop()
+			
+			display_clear(disp)
 
-except KeyboardInterrupt:
-    GPIO.cleanup()
+except Exception as e:
+	
+	print(f"Error: {e}")
+	
+	
+    

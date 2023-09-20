@@ -1,7 +1,7 @@
 import os
 import cv2
 import numpy as np
-from utils.utils import euclidean_distance
+from utils.software import euclidean_distance
 
 def compare_embeddings(reference, unknown, threshold):
 	

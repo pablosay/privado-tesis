@@ -3,6 +3,8 @@ import time
 from picamera2 import Picamera2
 import cv2
 
+
+
 GPIO.setmode(GPIO.BCM)
 TRIG_PIN = 4  
 ECHO_PIN = 17  

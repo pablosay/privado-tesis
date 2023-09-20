@@ -2,7 +2,10 @@ from offline.embedding_processing import get_face_embedding, get_known_embedding
 from offline.facepredictions import faceprediction
 from offline.faceclassification import recognize
 from offline.spoofdetection import spoofpredict
-from utils.utils import draw_bbox, draw_label, extract_image_from_camera, camera_config, init_distance_sensor, measure_distance
+from utils.hardware.camera import extract_image_from_camera, camera_config
+from utils.hardware.sensor import init_distance_sensor, measure_distance
+from utils.hardware.display import init_display, disp_show_image, disp_clear
+from utils.software import draw_bbox, draw_label 
 from picamera2 import Picamera2
 import cv2
 import time
