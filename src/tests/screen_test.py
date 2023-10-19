@@ -3,6 +3,7 @@ import board
 import digitalio
 from adafruit_rgb_display import st7735
 import time
+import busio
 import cv2
 import RPi.GPIO as GPIO
 from PIL import Image, ImageDraw
@@ -15,7 +16,7 @@ def init_screen():
 	
 	BAUDRATE = 24000000
 
-	spi = board.SPI()
+	spi = busio.SPI(clock = board.SCK_1, MOSI = board.MOSI_1)
 	
 	reset_pin = digitalio.DigitalInOut(board.D26)  
 	
@@ -23,7 +24,7 @@ def init_screen():
 	
 	cs_pin = digitalio.DigitalInOut(board.D6) 
 	
-	return st7735.ST7735R(spi, rotation=90, cs=cs_pin, dc=dc_pin, rst=reset_pin, baudrate = BAUDRATE)
+	return st7735.ST7735R(spi, rotation=270, cs=cs_pin, dc=dc_pin, rst=reset_pin, baudrate = BAUDRATE)
 	
 def config_screen_orientation(display, height, width):
 
@@ -78,15 +79,27 @@ def disp_show_image(disp, height, width, cv2image):
 	image = image.crop((x, y, x + width, y + height))
 	
 	disp.image(image)
-
+	
+def display_clear(disp):
+	
+	image = Image.new("RGB", (width, height))
+	
+	draw = ImageDraw.Draw(image)
+	
+	draw.rectangle((0,0,width, height), outline = 0, fill = (0,0,0))
+	
+	disp.image(image)
+	
     
 disp = init_screen()
 
 config_screen_orientation(disp, height, width)
 
-image = cv2.imread("terminator.jpg")
+image = cv2.imread("prueba.jpg")
 
 disp_show_image(disp, height, width, image)
+
+
 
 
 

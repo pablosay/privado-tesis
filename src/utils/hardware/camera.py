@@ -13,7 +13,7 @@ def extract_image_from_camera(cam, target_size):
 
 def camera_config(cam):
 	
-	configuration = cam.create_preview_configuration(main={"size": (640, 640)}, controls={"FrameDurationLimits": (3333, 3333)})
+	configuration = cam.create_preview_configuration(main={"size": (3000, 3000)}, controls={"FrameDurationLimits": (3333, 3333)})
 	
 	cam.configure(configuration)
 

@@ -1,5 +1,6 @@
 import board
 import digitalio
+import busio
 from adafruit_rgb_display import st7735
 import cv2
 from PIL import Image, ImageDraw, ImageFont
@@ -12,7 +13,7 @@ def init_display():
 	
 	BAUDRATE = 24000000
 
-	spi = board.SPI()
+	spi = busio.SPI(clock = board.SCK_1, MOSI = board.MOSI_1)
 	
 	reset_pin = digitalio.DigitalInOut(board.D26)  
 	
@@ -20,7 +21,7 @@ def init_display():
 	
 	cs_pin = digitalio.DigitalInOut(board.D6) 
 	
-	disp = st7735.ST7735R(spi, rotation=90, cs=cs_pin, dc=dc_pin, rst=reset_pin, baudrate = BAUDRATE)
+	disp = st7735.ST7735R(spi, rotation=270, cs=cs_pin, dc=dc_pin, rst=reset_pin, baudrate = BAUDRATE)
 	
 	if disp.rotation % 180 == 90:
 		
@@ -98,8 +99,6 @@ def display_show_spoof(disp):
 	text = "SPOOF"
 	
 	font = ImageFont.truetype("/usr/share/fonts/truetype/liberation2/LiberationMono-Bold.ttf", size=36)
-	
-	print(draw.textlength(text, font=font))
 	
 	text_length = draw.textlength(text, font=font)
 	

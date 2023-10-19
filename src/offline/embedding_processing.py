@@ -16,15 +16,13 @@ def extract_image(path, target_size):
 	
 	return img
 	
-def get_face_embedding(image, bbox, model, spoof):
+def get_face_embedding(image, bbox, model):
 
     x_min, y_min, x_max, y_max = map(int, bbox)
 	
     face = image[y_min:y_max, x_min:x_max]
-
-    if spoof == True:
-
-        face = cv2.resize(face, (160, 160))
+    
+    face = cv2.resize(face, (160, 160))
 
     embedding = DeepFace.represent(img_path = face, model_name = model, enforce_detection = False)
 
@@ -35,21 +33,21 @@ def list_known_embeddings(knowfaces_path):
 	embeddings = []
 	
 	for image in os.listdir(knowfaces_path):
-			
+		
 		filepath = knowfaces_path + '/' + image
-			
+		
 		img = extract_image(filepath, (640,640))
-			
+		
 		pred = faceprediction(img)
-			
+		
 		for result in pred:
-				
+			
 			bbox = result[:4]
-				
-			face_embedding = get_face_embedding(img, bbox, model = 'Facenet', spoof = False)
-				
+			
+			face_embedding = get_face_embedding(img, bbox, model = 'Facenet')
+			
 			embeddings.append(face_embedding)
-				
+			
 	return embeddings
 
 def get_known_embeddings(names):

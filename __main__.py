@@ -1,33 +1,35 @@
 import time
 import subprocess
-import socket
+import requests
 import argparse
 from art import *
+from src.utils.software import get_ip, there_is_connection, check_internet_connection
 
-def check_internet_connection():
-	
-	try:
 		
-		socket.create_connection(("www.google.com", 80))
-		
-		return True
-	
-	except OSError:
-		
-		return False
-		
-		
-def main(ip):
+def main():
 	
 	while True:
 		
 		if check_internet_connection():
 			
-			print("Internet connection.")
-
+			ip = get_ip()
 			
+			print("There is internet connection")
 			
-			subprocess.run(['python', 'src/main_online.py', ip])
+			print("Processing server IP: ", ip)
+			
+			if there_is_connection(ip):
+				
+				print("Connection to ", ip)
+				
+				subprocess.run([ 'python', 'src/main_online.py', ip])
+			
+			else:
+				
+				print("Processing server is unaviable.")
+			
+				subprocess.run(['python', 'src/main_offline.py'])
+				
 			
 		else:
 			
@@ -35,15 +37,9 @@ def main(ip):
 			
 			subprocess.run(['python', 'src/main_offline.py'])
 			
-	time.sleep(5)
+		time.sleep(5)
 	
 if __name__ == '__main__':
-	
-	parser = argparse.ArgumentParser(description = 'Main file: Decides which script runs.')
-	
-	parser.add_argument('ip', type = str, help ='IP of the backend')
-	
-	args = parser.parse_args()
 	
 	texto = text2art("PRIVADO 23")
 	
@@ -51,4 +47,4 @@ if __name__ == '__main__':
 	
 	print("Pablo Alejandro Say Cutz, 19001434 \n")
 	
-	main(args.ip)
+	main()
