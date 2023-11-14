@@ -7,6 +7,10 @@ import firebase_admin
 from firebase_admin import credentials
 from firebase_admin import db
 from datetime import datetime
+import os
+from dotenv import load_dotenv
+load_dotenv()
+from twilio.rest import Client
 
 urllib3.disable_warnings()
 
@@ -18,6 +22,12 @@ firebase_admin.initialize_app(cred, {
 	
 ref = db.reference('/device')
 
+account_sid = os.getenv('TWILIO_CID')
+
+auth_token = os.getenv('TWILIO_TOKEN')
+
+client = Client(account_sid, auth_token)
+	
 def draw_bbox(image, bbox):
 	
 	x_min, y_min, x_max, y_max = map(int, bbox)
@@ -79,7 +89,7 @@ def get_status():
 	except:
 		
 		return "blocked"
-
+		
 def set_status(status):
 	
 	ref.child('status').set(status)
@@ -93,7 +103,7 @@ def there_is_connection(ip):
 			
 			print("Trying to reach processing server.")
 		
-			response = requests.get("https://"+ ip + ":1500/test", verify = False, timeout=2)
+			response = requests.get(ip + "/test", verify = False, timeout=2)
 			
 			return response.status_code == 200
 		
@@ -144,4 +154,14 @@ def is_hour_past_vigilance():
 	
 	return actual_time > end_time
 	
-
+def send_message(message):
+	
+	try:
+		
+		client.messages.create(from_='whatsapp:' + ref.child('hostnumber').get(), body=message, to='whatsapp:'+ref.child('whatsappnumber').get())
+		
+		return "Successfull"
+		
+	except Exception as e:
+		
+		return "Error" + e

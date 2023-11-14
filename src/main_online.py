@@ -1,6 +1,6 @@
 from online.apirequests import classify, detect, spoofdetect, register_entry, register_intruder
 
-from utils.software import draw_bbox, draw_label, encode_image, is_hour_in_interval_vigilance, is_hour_past_vigilance, set_status, get_status
+from utils.software import draw_bbox, draw_label, encode_image, is_hour_in_interval_vigilance, is_hour_past_vigilance, set_status, get_status, send_message
 
 from utils.hardware.camera import extract_image_from_camera, camera_config
 from utils.hardware.sensor import init_distance_sensor, measure_distance
@@ -143,7 +143,11 @@ try:
 														
 														if entry_response["message"] == "Entry registed":
 															
-															print("Entry register")
+															print(send_message(classification['result'] + " just entered."))
+															
+														else:
+															
+															print(entry_response["message"])
 														
 														break
 									
@@ -161,11 +165,11 @@ try:
 														
 														if intruder_response["message"] == "Intruder registed":
 															
-															print("Intruder register")
+															print(send_message("Spoof detected with the face of " + classification['result'] + "."))
 															
 														if is_hour_in_interval_vigilance():
 															
-															print("Should block")
+															print(send_message("Spoof detected with the face of " + classification['result'] + ". Device is blocked. It it is an error, you can activate the device on the configuration page."))
 															
 															set_status("blocked")
 														
