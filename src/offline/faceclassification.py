@@ -9,8 +9,6 @@ def compare_embeddings(reference, unknown, threshold):
 	
 	for embedding in reference:
 		
-		print("Embedding, ", embedding)
-		
 		distances.append(euclidean_distance(embedding, unknown))
 		
 	distances = np.array(distances)
@@ -24,8 +22,6 @@ def recognize(unknown_embedding, knownembeds):
 		name = pair[0]
 		
 		embeddings_by_name = pair[1]
-		
-		print(unknown_embedding)
 		
 		distances, recognition = compare_embeddings(embeddings_by_name, unknown_embedding, 8)
 		

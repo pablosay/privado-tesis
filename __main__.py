@@ -14,7 +14,7 @@ def main():
 			
 			ip = get_ip()
 			
-			print("There is internet connection")
+			print("There is internet connection.")
 			
 			print("Processing server IP: ", ip)
 			
@@ -26,7 +26,7 @@ def main():
 			
 			else:
 				
-				print("Processing server is unaviable.")
+				print("Processing server is unavailable.")
 			
 				subprocess.run(['python', 'src/main_offline.py'])
 				
@@ -41,7 +41,7 @@ def main():
 	
 if __name__ == '__main__':
 	
-	texto = text2art("PRIVADO 23")
+	texto = text2art("PRIVADO 24")
 	
 	print(texto)
 	

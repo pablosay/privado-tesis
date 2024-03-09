@@ -88,17 +88,15 @@ def display_clear(disp):
 	
 	disp.image(image)
 	
-def display_show_spoof(disp):
+def display_show_text(disp, text, size):
 	
 	image = Image.new("RGB", (width, height), color=(255, 255, 255)) 
 
 	draw = ImageDraw.Draw(image)
 
 	draw.rectangle((0,0,width, height), outline = 0, fill = (0,0,0))
-
-	text = "SPOOF"
 	
-	font = ImageFont.truetype("/usr/share/fonts/truetype/liberation2/LiberationMono-Bold.ttf", size=36)
+	font = ImageFont.truetype("/usr/share/fonts/truetype/liberation2/LiberationMono-Bold.ttf", size)
 	
 	text_length = draw.textlength(text, font=font)
 	

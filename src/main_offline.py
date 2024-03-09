@@ -5,40 +5,46 @@ from offline.spoofdetection import spoofpredict
 
 from utils.hardware.camera import extract_image_from_camera, camera_config
 from utils.hardware.sensor import init_distance_sensor, measure_distance
-from utils.hardware.display import init_display, disp_show_image, display_clear, display_show_spoof
-from utils.hardware.light import init_light, turn_on, turn_off, accepted, denied
+from utils.hardware.display import init_display, disp_show_image, display_clear, display_show_text
+from utils.hardware.light import init_light, turn_on, turn_off, accepted, denied, offline_mode
 
-from utils.software import draw_bbox, draw_label, get_ip, there_is_connection, check_internet_connection
+from utils.software import draw_bbox, draw_label, get_ip, there_is_connection, check_internet_connection, concatenatedNameToSeparated
 
 from picamera2 import Picamera2
 import cv2
 import time
 import RPi.GPIO as GPIO
+from colorama import init, Fore
+import os
 
 def init_configuration():
+	
+	print("----- Peripherals initializing-----")
+	
+	init(autoreset=True)
 	
 	GPIO.cleanup()
 	
 	camera = Picamera2()
 
-	print('Initializing camera (Picamera2)...')
+	print(Fore.BLUE + 'Initializing camera (Picamera2)...')
 	camera_config(camera)
 	print('Done.')
 
-	print('Initializing distance sensor...')
+	print(Fore.BLUE + 'Initializing distance sensor...')
 	init_distance_sensor()
-	print('Done')
+	print('Done.')
 	
-	print('Initializing display...')
+	print(Fore.BLUE + 'Initializing display...')
 	disp = init_display()
-	print('Done')
+	print('Done.')
 	
-	print('Initializing light...')
+	print(Fore.BLUE + 'Initializing light...')
 	strip = init_light()
+
+	print('Done.')
 	
-	strip.begin()
-	
-	print('Done')
+	print("---------------------------------- \n")
 	
 	return camera, disp, strip
 
@@ -48,37 +54,51 @@ def get_countdown(end):
 	
 	return end - now
 	
-known_embeddings = get_known_embeddings(['pablo',  'suzanne'])
-	
-camera, disp, strip = init_configuration()
+camera, disp, strip = init_configuration()	
 
-turn_off(strip)
+offline_mode(strip)
 
 display_clear(disp)
 
-try:
+print('Obtaining embeddings from folder ... ')
 
+known_embeddings = get_known_embeddings(os.listdir("/home/pablosay21/Documentos/privado-tesis/data/classes"))
+
+print('Done.')
+
+
+
+try:
+	
 	while True:
 		
 		if check_internet_connection():
 			
-			print("There is internet connection")
+			print("There is internet connection.")
 			
 			if there_is_connection(get_ip()):
 				
 				break
 				
+			else:
+				
+				print("Processing server unreachable.")
+				
+		else:
+			
+			print("There is no internet connection.")
+				
 		sensor_distance = measure_distance()
 		
 		if sensor_distance < 0.3:
 			
-			print("Distancia detectada")
+			print(Fore.CYAN + "Object detected.")
 			
 			turn_on(strip)
 			
 			camera.start()
 			
-			end = time.time() + 20
+			end = time.time() + 10
 			
 			spoof_or_classification = False
 			
@@ -86,21 +106,21 @@ try:
 				
 				countdown = get_countdown(end)
 				
-				print(countdown)
-				
 				if countdown  > 0:
 				
 					if not spoof_or_classification:
 						
-						print("NO se ha detectado")
+						timetodetect = time.time()
 			
 						image = extract_image_from_camera(camera, (640,640))
+						
+						disp_show_image(disp, image)
 						
 						prediction = faceprediction(image)
 						
 						for result in prediction:
 							
-							print("Cara detectada")
+							print("Face detected.")
 							
 							bbox = result[:4]
 							
@@ -118,7 +138,11 @@ try:
 								
 								for i in spoof_prediction:
 									
-									if i[5] == 1 and i[4] > 0.7:
+									if i[5] == 1:
+										
+										print(Fore.YELLOW + "Face recognition time: ", time.time() - timetodetect)
+										
+										print(Fore.GREEN + "Welcome: " + predicted_name)
 										
 										draw_label(predicted_name, image, x_min, y_min)
 										
@@ -134,11 +158,13 @@ try:
 										
 										break
 										
-									elif i[5] == 0 and i[4] > 0.7:
+									elif i[5] == 0:
 										
 										turn_off(strip)
 										
-										display_show_spoof(disp)
+										print(Fore.RED + "Spoof detected with the face of " + predicted_name  + ".")
+										
+										display_show_text(disp, "Spoof",  36)
 										
 										denied(strip)
 										
@@ -148,17 +174,15 @@ try:
 										
 									else:
 										
-										print("Acercate mas a la camara")
+										print("Come near towards the camera.")
 										
 							else:
 								
-								print("Desconocido")
+								print(Fore.MAGENTA + "Unknown person.")
 					
 					else:
 						
-						print("Welcome! or get out")
-						
-						time.sleep(2)
+						time.sleep(5)
 						
 						turn_off(strip)
 					
@@ -170,7 +194,7 @@ try:
 					
 				else: 
 					
-					print("Tiempo de espera cumplido")
+					print(Fore.CYAN + "Expected time completed. ")
 					
 					turn_off(strip)
 					

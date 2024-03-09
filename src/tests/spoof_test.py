@@ -48,7 +48,7 @@ def init_light():
 	  
 	LED_DMA = 13
 	  
-	LED_BRIGHTNESS = 40
+	LED_BRIGHTNESS = 80
 	  
 	LED_INVERT = False
 	  
@@ -86,7 +86,7 @@ def spoofprediction(image, model):
 	
 def camera_config(cam):
 	
-	configuration = cam.create_preview_configuration(main={"size": (3000, 3000)}, controls={"FrameDurationLimits": (3333, 3333)})
+	configuration = cam.create_preview_configuration(main={"size": (640, 640)}, controls={"FrameDurationLimits": (33333, 33333)})
 	
 	cam.configure(configuration)
     
@@ -119,11 +119,11 @@ try:
 				
 			x_min, y_min = int(spoofbbox[0]), int(spoofbbox[1])
 				
-			if spoofresult[5] == 1 and spoofresult[4] > 0.8:
+			if spoofresult[5] == 1:
 					
 				draw_label('Live', image, x_min, y_min)
 					
-			elif spoofresult[5] == 0 and spoofresult[4] > 0.8:
+			elif spoofresult[5] == 0:
 					
 				draw_label('spoof', image, x_min, y_min)
 					

@@ -1,58 +1,78 @@
-from rpi_ws281x import Adafruit_NeoPixel, Color
+import board
+import neopixel
+import time
 
 def init_light():
 	
 	LED_COUNT = 35
 	
-	LED_PIN = 10
-	    
-	LED_FREQ_HZ = 800000
-	  
-	LED_DMA = 13
-	  
-	LED_BRIGHTNESS = 60
-	  
-	LED_INVERT = False
-	  
-	return Adafruit_NeoPixel(LED_COUNT, LED_PIN, LED_FREQ_HZ, LED_DMA, LED_INVERT, LED_BRIGHTNESS)
+	LED_PIN = board.D10
+	
+	LED_BRIGHTNESS = 0.8
+	
+	return neopixel.NeoPixel(LED_PIN, LED_COUNT, brightness = LED_BRIGHTNESS, auto_write = False)
 
 def turn_on(strip):
 	
-	for i in range(35):
+	color = (255, 255, 100)  
 		
-		color = Color(255, 255, 100)  
-		
-		strip.setPixelColor(i, color)
+	strip.fill(color)
     
 	strip.show()
 	
 def turn_off(strip):
-	
-	for i in range(35):
 		
-		color = Color(0, 0, 0)  
+	color = (0, 0, 0)  
 		
-		strip.setPixelColor(i, color)
+	strip.fill(color)
     
 	strip.show()
 
 def accepted(strip):
+		
+	color = (0, 225, 0)
 	
-	for i in range(35):
-		
-		color = Color(0, 225, 0)  
-		
-		strip.setPixelColor(i, color)
+	strip.fill(color)
     
-	strip.show()
+	strip.show()  
+
 	
 def denied(strip):
+		
+	color = (225,0,0)
 	
-	for i in range(35):
-		
-		color = Color(225, 0, 0)  
-		
-		strip.setPixelColor(i, color)
+	strip.fill(color)
     
 	strip.show()
 	
+def online_mode(strip):
+		
+	color = (225,69,0)
+		
+	strip.fill(color)
+		
+	strip.show()
+		
+	time.sleep(5)
+		
+	color = (0,0,0)
+		
+	strip.fill(color)
+		
+	strip.show()
+
+def offline_mode(strip):
+		
+	color = (88,2,125)
+		
+	strip.fill(color)
+		
+	strip.show()
+		
+	time.sleep(2)
+		
+	color = (0,0,0)
+		
+	strip.fill(color)
+		
+	strip.show()

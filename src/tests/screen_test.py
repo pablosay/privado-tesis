@@ -6,7 +6,7 @@ import time
 import busio
 import cv2
 import RPi.GPIO as GPIO
-from PIL import Image, ImageDraw
+from PIL import Image, ImageDraw, ImageFont
 
 height = 128
 
@@ -89,15 +89,35 @@ def display_clear(disp):
 	draw.rectangle((0,0,width, height), outline = 0, fill = (0,0,0))
 	
 	disp.image(image)
+
+def display_show_text(disp, text, size):
 	
+	image = Image.new("RGB", (width, height), color=(255, 255, 255)) 
+
+	draw = ImageDraw.Draw(image)
+
+	draw.rectangle((0,0,width, height), outline = 0, fill = (0,0,0))
+	
+	font = ImageFont.truetype("/usr/share/fonts/truetype/liberation2/LiberationMono-Bold.ttf",  size)
+	
+	text_length = draw.textlength(text, font=font)
+	
+	x = (width - int(text_length)) // 2
+	
+	y = (height - int(text_length)) // 2
+
+	text_color = (225, 225, 225)
+	
+	draw.text((x, y), text, font=font, fill=text_color)
+	
+	disp.image(image)
+
     
 disp = init_screen()
 
 config_screen_orientation(disp, height, width)
 
-image = cv2.imread("prueba.jpg")
-
-disp_show_image(disp, height, width, image)
+display_show_text(disp, "Online mode", 22)
 
 
 

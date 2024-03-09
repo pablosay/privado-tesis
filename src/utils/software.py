@@ -11,6 +11,7 @@ import os
 from dotenv import load_dotenv
 load_dotenv()
 from twilio.rest import Client
+import re
 
 urllib3.disable_warnings()
 
@@ -165,3 +166,12 @@ def send_message(message):
 	except Exception as e:
 		
 		return "Error" + e
+		
+def concatenatedNameToSeparated(string):
+	
+	names = re.findall('[A-Z][a-z]*', string)
+	
+	return ' '.join(names)
+	
+	
+	
